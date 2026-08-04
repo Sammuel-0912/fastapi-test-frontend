@@ -2,15 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-
-// 定義 Config 介面
-export interface AppConfig {
-  VITE_API_BASE_URL: string;
-}
-
-export let appConfig: AppConfig = {
-  VITE_API_BASE_URL: "",
-};
+import { setConfig } from "./config";
 
 // 異步載入 Config 後才渲染 React
 async function initApp() {
@@ -18,7 +10,7 @@ async function initApp() {
     // 加上 timestamp 防止瀏覽器快取 config.json
     const response = await fetch(`/config.json?t=${Date.now()}`);
     if (response.ok) {
-      appConfig = await response.json();
+      setConfig(await response.json());
     } else {
       console.warn("無法載入 config.json，將使用預設設定");
     }
