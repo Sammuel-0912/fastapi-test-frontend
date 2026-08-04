@@ -3,17 +3,8 @@ import api from "./api";
 // 💡 使用 import type，明確告訴編譯器這只是型別定義，不會產生任何 JS 程式碼
 import type { MachineListResponse } from './types';
 
-
-// 對應後端 read_machines 回傳的 MachineListResponse (不含 logs)
-interface Machine {
-  id: number;
-  name: string;
-  status: string | null;
-  location: string | null;
-}
-
 export default function App() {
-  const [machines, setMachines] = useState<Machine[]>([]);
+  const [machines, setMachines] = useState<MachineListResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {

@@ -8,9 +8,13 @@ export interface MachineBase {
 // 瘦身版列表 Response (對應 Pydantic MachineListResponse，無 logs)
 export interface MachineListResponse extends MachineBase {
   id: number;
-  logs: LogResponse[];
 }
 
+// 補上MachineResponse
+export interface MachineResponse extends MachineBase {
+  id: number;
+  logs: LogResponse[];
+}
 // 日誌 Response (對應 Pydantic LogResponse)
 export interface LogResponse {
   id: number;
