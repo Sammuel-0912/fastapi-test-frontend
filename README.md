@@ -1,79 +1,101 @@
-<<<<<<< HEAD
 # fastapi-test-frontend
-=======
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+工廠機台管理系統的前端，使用 **Vite + React 19 + TypeScript** 建置，透過 [axios](https://axios-http.com/) 串接 FastAPI 後端，讀取並顯示機台清單。
 
-Currently, two official plugins are available:
+## 功能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 啟動時呼叫後端 `GET /machines`，列出所有機台。
+- 顯示每台機台的名稱、狀態（`operational` 顯示綠色、其餘紅色）與所在位置。
+- 具備載入中提示與「尚無資料」的空狀態處理。
 
-## React Compiler
+## 技術棧
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| 項目 | 版本 |
+| --- | --- |
+| React | 19 |
+| TypeScript | 6 |
+| Vite | 8 |
+| axios | 1.x |
+| ESLint | 10 |
 
-## Expanding the ESLint configuration
+## 環境需求
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- [Node.js](https://nodejs.org/)（建議 18 以上）
+- 一個提供 `GET /machines` API 的 FastAPI 後端
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 快速開始
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# 1. 安裝相依套件
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 2. 設定後端 API 位址（見下方「設定」）
+cp .env.example .env
 
+# 3. 啟動開發伺服器
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+開發伺服器預設在 <http://localhost:5173> 啟動。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 設定
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+後端 API 位址有兩種設定方式，**執行期的 `config.json` 優先權高於建置期的環境變數**：
+
+### 1. 建置期環境變數（`.env`）
+
+複製 [.env.example](.env.example) 為 `.env`，填入後端位址：
 
 ```
->>>>>>> c5753be (feat: init vite react ts project and integrate GET /machines)
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+> `.env` 已被 gitignore，不會進版控；請勿把機敏資訊寫進 `.env.example`。
+
+### 2. 執行期設定（`public/config.json`）
+
+[public/config.json](public/config.json) 會在 App 啟動時被讀取，並覆蓋 `VITE_API_BASE_URL`：
+
+```json
+{
+  "VITE_API_BASE_URL": "http://localhost:8000"
+}
+```
+
+由於 `config.json` 位於 `public/`，建置後仍是獨立檔案，**可在部署後直接修改，無需重新 build** 就能切換後端位址（例如 dev / staging / production 共用同一份前端產物）。載入邏輯見 [src/main.tsx](src/main.tsx)，axios 攔截器見 [src/api.ts](src/api.ts)。
+
+## 可用指令
+
+| 指令 | 說明 |
+| --- | --- |
+| `npm run dev` | 啟動開發伺服器（HMR） |
+| `npm run build` | 型別檢查（`tsc -b`）並打包產出至 `dist/` |
+| `npm run preview` | 本地預覽正式版產物 |
+| `npm run lint` | 執行 ESLint 檢查 |
+
+## 專案結構
+
+```
+├── public/
+│   └── config.json      # 執行期設定（後端 API 位址）
+├── src/
+│   ├── main.tsx         # 進入點，載入 config.json 後才 render
+│   ├── App.tsx          # 機台清單畫面
+│   ├── api.ts           # axios 實例與 baseURL 攔截器
+│   └── index.css        # 全域樣式
+├── .env.example         # 環境變數範本
+└── vite.config.ts       # Vite 設定
+```
+
+## 後端 API
+
+App 預期後端 `GET /machines` 回傳機台陣列，每筆結構如下（對應後端的 `MachineListResponse`）：
+
+```ts
+interface Machine {
+  id: number;
+  name: string;
+  status: string | null;    // 例如 "operational"
+  location: string | null;
+}
+```
