@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import axios from "axios";
 import api from "./api"; 
 
 // 對應後端 read_machines 回傳的 MachineListResponse (不含 logs)
