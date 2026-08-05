@@ -24,7 +24,7 @@ export default function App() {
       .catch((err) => {
         // 🆕 3. 如果請求是因為被 abort 取消的，直接 return 不當成錯誤處理
         if (axios.isCancel(err) || err.name === "CanceledError") {
-          console.log("舊的請求已被安全取消");
+          console.log("❌ 成功攔截：第一個請求已被 Abort 取消");
           return;
         }
         console.error("抓取機台失敗:", err);
@@ -40,6 +40,7 @@ export default function App() {
       });
       // 🆕 4. 回傳 cleanup 函式：當元件卸載或重新執行 effect 時自動取消上一次未完成的請求
       return () => {
+        console.log("🧹 Cleanup 觸發：執行 controller.abort()");
         controller.abort();
       }
   }, []);
