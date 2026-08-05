@@ -3,6 +3,7 @@ import api from "./api";
 // 💡 使用 import type，明確告訴編譯器這只是型別定義，不會產生任何 JS 程式碼
 import type { MachineListResponse } from "./types";
 import axios from "axios";
+import LoginForm from "./components/LoginForm";
 
 export default function App() {
   const [machines, setMachines] = useState<MachineListResponse[]>([]);
@@ -67,6 +68,10 @@ export default function App() {
   // 到這裡代表成功拿到資料 (Success)
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+      <LoginForm />
+      
+      <hr style={{ margin: "20px 0" }} />
+      
       <h1>🏭 工廠機台管理系統</h1>
       <ul>
         {machines.map((m) => (
