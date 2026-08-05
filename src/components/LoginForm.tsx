@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import api from "../api";
 import type { Token } from "../types";
 
-export default function LoginForm() {
+// 🆕 定義 Props 型別：登入成功時回傳 token 字串
+interface LoginFormProps {
+  onLoginSuccess: (token: string) => void;
+}
+
+
+export default function LoginForm({ onLoginSuccess}: LoginFormProps) {
   // 1. 受控元件 State：React State 為輸入值的唯一真實來源
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +33,12 @@ export default function LoginForm() {
       const res = await api.post<Token>("/auth/login", params);
       // const res = await api.post<Token>("/auth/login", { username, password });
 
+      // 🎉 1. 成功拿到 Token 後，呼叫父元件傳進來的 callback
+      onLoginSuccess(res.data.access_token);
+
+      // 🧹 2. 清空密碼欄位與錯誤訊息
+      setPassword("");
+      setError(null);
       console.log("🎉 登入成功！拿到 Token:", res.data.access_token);
     } catch (err: any) {
       console.error("登入失敗:", err);
@@ -38,7 +50,7 @@ export default function LoginForm() {
           ? detail
           : Array.isArray(detail)
             ? detail.map((d: any) => d.msg).join("、")
-            : "登入失敗，請檢查網路連線。";
+            : "登入失敗，請檢查帳號密碼。";
       setError(message);
     } finally {
       setSubmitting(false);

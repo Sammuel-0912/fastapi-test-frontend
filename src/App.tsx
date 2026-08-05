@@ -11,6 +11,9 @@ export default function App() {
   // 🆕 1. 新增 error 狀態，預設為 null
   const [error, setError] = useState<string | null>(null);
 
+  // 🔑 管理登入後的 Token 狀態
+  const [token, setToken] = useState<string | null>(null);
+
   useEffect(() => {
     // 💡 加上泛型 <MachineListResponse[]>，讓 res.data 自動推導出正確型別
     const controller = new AbortController();
@@ -46,46 +49,58 @@ export default function App() {
       }
   }, []);
 
-  if (loading) {
+  // 🔑 處理登入成功
+  const handleLoginSuccess = (newToken: string) => {
+    setToken(newToken);
+    console.log("App 接收到新的 Token:", newToken);
+  }
+  // 🔑 處理登出
+  const handleLogout = () => {
+    setToken(null);
+  };
+
+  // 獨立渲染「機台區塊」（不影響頂部登入區）
+  const renderMachines = () => {
+    if (loading) {
     return <div style={{ padding: "20px" }}>載入機台資料中...</div>;
   }
-  if (error) {
+  if (error) return <div style={{ color: "red" }}>⚠️ {error}</div>;
+  if (machines.length === 0) return <p>📭 目前尚無機台資料</p>;
+
     return (
-      <div style={{ padding: "20px", color: "red", fontFamily: "sans-serif" }}>
-        <h2>⚠️ 系統發生錯誤</h2>
-        <p>{error}</p>
-      </div>
-    );
-  }
-  if (machines.length === 0) {
-    return (
-      <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-        <h1>🏭 工廠機台管理系統</h1>
-        <p>📭 目前尚無機台資料，請透過後端 API 新增。</p>
-      </div>
-    );
-  }
-  // 到這裡代表成功拿到資料 (Success)
-  return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
-      <LoginForm />
-      
-      <hr style={{ margin: "20px 0" }} />
-      
-      <h1>🏭 工廠機台管理系統</h1>
       <ul>
         {machines.map((m) => (
           <li key={m.id} style={{ marginBottom: "8px" }}>
             <strong>{m.name}</strong> —{" "}
-            <span
-              style={{ color: m.status === "operational" ? "green" : "red" }}
-            >
+            <span style={{ color: m.status === "operational" ? "green" : "red" }}>
               {m.status || "未知"}
             </span>{" "}
             @ 📍 {m.location || "未指派"}
           </li>
         ))}
       </ul>
-    </div>
+    );
+  };
+  
+  return (
+   <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+    {/* 🟢 頂部認證區域：未登入顯示 LoginForm，已登入顯示歡迎詞與登出鈕 */}
+    {!token ? (
+      <LoginForm onLoginSuccess={handleLoginSuccess} />
+    ) : (
+      <div style={{ background: "#e6fffa", padding: "12px 16px", borderRadius: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>✅ 已登入管理員系統 (Token 已就緒)</span>
+          <button onClick={handleLogout} style={{ padding: "6px 12px", cursor: "pointer" }}>
+            登出
+          </button>
+      </div>
+    )}
+    <hr style={{ margin: "20px 0" }} />
+
+      <h1>🏭 工廠機台管理系統</h1>
+      {/* 🟢 下方：獨立判斷分支的機台區塊 */}
+      {renderMachines()}
+   </div>
   );
 }
+
