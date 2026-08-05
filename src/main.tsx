@@ -1,8 +1,8 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { setConfig } from "./config";
+
 
 // 異步載入 Config 後才渲染 React
 async function initApp() {
@@ -19,9 +19,7 @@ async function initApp() {
   }
   // 取得 config 後才 Render React App
   createRoot(document.getElementById("root")!).render(
-    <StrictMode>
       <App />
-    </StrictMode>,
   );
 }
 

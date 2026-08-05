@@ -91,11 +91,3 @@ VITE_API_BASE_URL=http://localhost:8000
 
 App 預期後端 `GET /machines` 回傳機台陣列，每筆結構如下（對應後端的 `MachineListResponse`）：
 
-```ts
-interface Machine {
-  id: number;
-  name: string;
-  status: string | null;    // 例如 "operational"
-  location: string | null;
-}
-```
