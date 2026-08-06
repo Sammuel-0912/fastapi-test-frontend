@@ -4,6 +4,7 @@ import api from "./api";
 import type { MachineListResponse, MachineResponse} from "./types";
 import LoginForm from "./components/LoginForm";
 import { useAuth } from "./contexts/AuthContext";
+import axios from "axios";
 
 export default function App() {
   const [machines, setMachines] = useState<MachineListResponse[]>([]);
@@ -14,20 +15,39 @@ export default function App() {
   // 🆕 取得認證狀態與登出函式
   const {isAuthenticated, logout } = useAuth();
 
-  const fetchMachines = () => {
+  // 🆕 2. 讓 fetchMachines 支援可選的 signal 參數
+  const fetchMachines = (signal?: AbortSignal) => {
     setLoading(true);
     api
-    .get<MachineListResponse[]>("/machines")
+    .get<MachineListResponse[]>("/machines", {signal})
     .then((res) => setMachines(res.data))
+    // 🆕 3. 如果請求是因為被 controller.abort() 取消的，直接忽略，不當成錯誤處理
     .catch((err) => {
+      if (axios.isCancel(err)) {
+        console.log("❌ 成功攔截：舊的請求已被安全取消");
+        return;
+      }
+      console.error("抓取機台失敗:", err);
       const detailMessage = err.response?.data?.detail;
       setError(detailMessage ?? "無法連線至伺服器");
     })
-    .finally(() => setLoading(false));
+    .finally(() => {
+      // 🆕 4. 只有在請求「沒有被取消」的情況下，才關閉載入狀態
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
+    });
   }
 
   useEffect(() => {
-    fetchMachines();
+    // 🆕 5. 在 useEffect 中建立 AbortController 並在 cleanup 呼叫 abort()
+    const controller = new AbortController();
+    fetchMachines(controller.signal);
+    // 🧹 cleanup 函式：當元件卸載或 StrictMode 重跑時先取消上一次的爛攤子
+
+    return () => {
+      controller.abort();
+    }
   }, []);
   // 🧪 測試新增機台的受保護 API (POST /machines 需要 Token)
   const handleCreateMachine = async () => {
@@ -39,6 +59,9 @@ export default function App() {
       };
       const res = await api.post<MachineResponse>("/machines", newMachine);
       alert(`🎉 新增成功！機台名稱：${res.data.name}`);
+      
+      // 🆕 6. 新增成功後重新刷新列表，這裡不傳 signal 就會像一般請求一樣正常執行
+      
       fetchMachines(); // 重新整理列表
 
     } catch (err: any) {
