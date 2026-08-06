@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import api from "./api";
 // 💡 使用 import type，明確告訴編譯器這只是型別定義，不會產生任何 JS 程式碼
 import type { MachineListResponse, MachineResponse} from "./types";
-import axios from "axios";
 import LoginForm from "./components/LoginForm";
 import { useAuth } from "./contexts/AuthContext";
 

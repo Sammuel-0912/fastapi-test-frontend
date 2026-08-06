@@ -3,13 +3,7 @@ import api from "../api";
 import type { Token } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 
-// 🆕 定義 Props 型別：登入成功時回傳 token 字串
-interface LoginFormProps {
-  onLoginSuccess: (token: string) => void;
-}
-
-
-export default function LoginForm({ onLoginSuccess}: LoginFormProps) {
+export default function LoginForm() {
   // 1. 受控元件 State：React State 為輸入值的唯一真實來源
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
