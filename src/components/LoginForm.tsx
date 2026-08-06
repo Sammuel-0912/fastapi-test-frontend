@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import api from "../api";
 import type { Token } from "../types";
+import { useAuth } from "../contexts/AuthContext";
 
 // 🆕 定義 Props 型別：登入成功時回傳 token 字串
 interface LoginFormProps {
@@ -16,6 +17,8 @@ export default function LoginForm({ onLoginSuccess}: LoginFormProps) {
   // 2. 狀態管理：錯誤訊息與送出中狀態
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const {login} = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     // ⚠️ 關鍵 1：防止 HTML 表單預設的頁面重新整理與網址列參數洩漏
@@ -33,13 +36,11 @@ export default function LoginForm({ onLoginSuccess}: LoginFormProps) {
       const res = await api.post<Token>("/auth/login", params);
       // const res = await api.post<Token>("/auth/login", { username, password });
 
-      // 🎉 1. 成功拿到 Token 後，呼叫父元件傳進來的 callback
-      onLoginSuccess(res.data.access_token);
+      // 🎉 呼叫 AuthContext 的 login
+      login(res.data.access_token);
 
       // 🧹 2. 清空密碼欄位與錯誤訊息
       setPassword("");
-      setError(null);
-      console.log("🎉 登入成功！拿到 Token:", res.data.access_token);
     } catch (err: any) {
       console.error("登入失敗:", err);
 

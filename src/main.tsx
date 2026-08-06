@@ -3,7 +3,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { setConfig } from "./config";
 import { StrictMode } from "react";
-
+import { AuthProvider } from "./contexts/AuthContext";
 
 // 異步載入 Config 後才渲染 React
 async function initApp() {
@@ -21,7 +21,9 @@ async function initApp() {
   // 取得 config 後才 Render React App
   createRoot(document.getElementById("root")!).render(
       <StrictMode>
-        <App />
+        <AuthProvider> {/* 🆕 用 AuthProvider 包裹 */}
+          <App />
+        </AuthProvider>
       </StrictMode>
       
   );
