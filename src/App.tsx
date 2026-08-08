@@ -4,13 +4,10 @@ import type { MachineResponse } from "./types";
 import LoginForm from "./components/LoginForm";
 import { useAuth } from "./contexts/AuthContext";
 import { useMachines } from "./hooks/useMachines"; // 🆕 引入 Custom Hook
-
+import { getErrorMessage } from "./utils/errorMessage"; // 🆕 匯入工具
 
 export default function App() {
   const { machines, loading, error, refetch } = useMachines();
-
-
-
   const { isAuthenticated, logout } = useAuth();
   const handleCreateMachine = async () => {
     try {
@@ -25,10 +22,8 @@ export default function App() {
       // 🆕 6. 新增成功後重新刷新列表，這裡不傳 signal 就會像一般請求一樣正常執行
       // 🟢 新增成功後直接呼叫 refetch() 刷新列表
       refetch();
-    } catch (err: any) {
-      console.error("新增失敗:", err);
-      const detail = err.response?.data?.detail;
-      alert(`❌ 請求失敗 (${err.response?.status})：${JSON.stringify(detail)}`);
+    } catch (err) {
+      alert(`❌ 請求失敗 (${getErrorMessage(err, "新增機台失敗")}`);
     }
   };
 

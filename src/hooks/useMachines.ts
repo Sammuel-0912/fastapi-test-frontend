@@ -1,42 +1,38 @@
 import { useCallback, useEffect, useState } from "react";
-import axios from 'axios';
+import axios from "axios";
 import type { MachineListResponse } from "../types";
 import api from "../api";
-
+import { getErrorMessage } from "../utils/errorMessage"; // 🆕 匯入工具
 
 export function useMachines() {
-    const [machines, setMachines] = useState<MachineListResponse[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-      // 🆕 1. 新增 error 狀態，預設為 null
-    const [error, setError] = useState<string | null>(null);
+  const [machines, setMachines] = useState<MachineListResponse[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  // 🆕 1. 新增 error 狀態，預設為 null
+  const [error, setError] = useState<string | null>(null);
 
-    // 💡 使用 useCallback 包裹，確保 fetchMachines 在元件重新渲染時參考位址維持不變
-    const fetchMachines = useCallback((signal?: AbortSignal) => {
-        setLoading(true);
-        setError(null);
+  // 💡 使用 useCallback 包裹，確保 fetchMachines 在元件重新渲染時參考位址維持不變
+  const fetchMachines = useCallback((signal?: AbortSignal) => {
+    setLoading(true);
+    setError(null);
 
-        api.get<MachineListResponse[]>("/machines", {signal})
-        .then((res) => {
-            setMachines(res.data);
-        })
+    api
+      .get<MachineListResponse[]>("/machines", { signal })
+      .then((res) => {
+        setMachines(res.data);
+      })
 
-        .catch((err) => {
-        if (axios.isCancel(err)) {
-        console.log("❌ 成功攔截：舊的請求已被安全取消");
-        return;
-        }
-        console.error("抓取機台失敗:", err);
-        const detailMessage = err.response?.data?.detail;
-        setError(detailMessage ?? "無法連線至伺服器");
-    })
-    .finally(() => {
+      .catch((err) => {
+        const msg = getErrorMessage(err, "無法載入機台資料");
+        if (msg) setError(msg);
+      })
+      .finally(() => {
         if (!signal?.aborted) {
-            setLoading(false);
+          setLoading(false);
         }
-    });
-},[]);
+      });
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     // 🆕 5. 在 useEffect 中建立 AbortController 並在 cleanup 呼叫 abort()
     const controller = new AbortController();
     fetchMachines(controller.signal);

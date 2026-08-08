@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import api from "../api";
 import type { Token } from "../types";
 import { useAuth } from "../contexts/AuthContext";
+import { getErrorMessage } from "../utils/errorMessage";
 
 export default function LoginForm() {
   // 1. 受控元件 State：React State 為輸入值的唯一真實來源
@@ -12,7 +13,7 @@ export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const {login} = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     // ⚠️ 關鍵 1：防止 HTML 表單預設的頁面重新整理與網址列參數洩漏
@@ -35,18 +36,8 @@ export default function LoginForm() {
 
       // 🧹 2. 清空密碼欄位與錯誤訊息
       setPassword("");
-    } catch (err: any) {
-      console.error("登入失敗:", err);
-
-      // ⚠️ 關鍵 3：處理 401 (字串) 與 422 (陣列) 的 detail 型別差異
-      const detail = err.response?.data?.detail;
-      const message =
-        typeof detail === "string"
-          ? detail
-          : Array.isArray(detail)
-            ? detail.map((d: any) => d.msg).join("、")
-            : "登入失敗，請檢查帳號密碼。";
-      setError(message);
+    } catch (err) {
+      setError(getErrorMessage(err, "登入失敗，請檢查帳號密碼"));
     } finally {
       setSubmitting(false);
     }

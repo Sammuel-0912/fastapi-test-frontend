@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { setToken as setModuleToken } from "../auth";
 
 interface AuthContextType {
@@ -34,6 +34,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
+  useEffect(() => {
+    const handleUnauthorizedEvent = () => {
+      logout();
+    };
+    window.addEventListener("unauthorized", handleUnauthorizedEvent);
+    return () => {
+      window.removeEventListener("unauthorized", handleUnauthorizedEvent);
+    }
+  },[]);
 }
 // 供其他元件呼叫的 Custom Hook
 export function useAuth() {
@@ -43,3 +52,5 @@ export function useAuth() {
   }
   return context;
 }
+
+
