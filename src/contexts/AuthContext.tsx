@@ -22,6 +22,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTokenState(null);
     setModuleToken(null); // 👈 關鍵：清空 Interceptor 的 Token
   };
+  useEffect(() => {
+    const handleUnauthorizedEvent = () => {
+      logout();
+    };
+    window.addEventListener("unauthorized", handleUnauthorizedEvent);
+    return () => {
+      window.removeEventListener("unauthorized", handleUnauthorizedEvent);
+    }
+  },[]);
+  
   return (
     <AuthContext.Provider
       value={{
@@ -34,15 +44,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-  useEffect(() => {
-    const handleUnauthorizedEvent = () => {
-      logout();
-    };
-    window.addEventListener("unauthorized", handleUnauthorizedEvent);
-    return () => {
-      window.removeEventListener("unauthorized", handleUnauthorizedEvent);
-    }
-  },[]);
 }
 // 供其他元件呼叫的 Custom Hook
 export function useAuth() {

@@ -23,7 +23,7 @@ export default function App() {
       // 🟢 新增成功後直接呼叫 refetch() 刷新列表
       refetch();
     } catch (err) {
-      alert(`❌ 請求失敗 (${getErrorMessage(err, "新增機台失敗")}`);
+      alert(`❌ 請求失敗 (${getErrorMessage(err, "新增機台失敗")})`);
     }
   };
 

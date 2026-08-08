@@ -18,6 +18,7 @@
 
     /* Linting */
     "strict": true,
+    "allowUnreachableCode": false, // 👈 關鍵：遇到 unreachable code 直接視為編譯錯誤！
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,

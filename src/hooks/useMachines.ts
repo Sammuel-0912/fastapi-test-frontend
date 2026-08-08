@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import type { MachineListResponse } from "../types";
 import api from "../api";
 import { getErrorMessage } from "../utils/errorMessage"; // 🆕 匯入工具
