@@ -15,7 +15,7 @@ export function useMachines() {
     setError(null);
 
     api
-      .get<MachineListResponse[]>("/machines", { signal })
+      .get<MachineListResponse[]>("/machines", { params: {limit: 100}, signal })
       .then((res) => {
         setMachines(res.data);
       })
@@ -44,6 +44,7 @@ export function useMachines() {
   // 💡 回傳物件：具名可讀、順序無關、擴充性極佳
   return {
     machines,
+    setMachines,
     loading,
     error,
     refetch: fetchMachines,

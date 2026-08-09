@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import { setConfig } from "./config";
 import { StrictMode } from "react";
 import { AuthProvider } from "./contexts/AuthContext";
+import { BrowserRouter } from "react-router-dom"; // 🆕 匯入 BrowserRouter
 
 // 異步載入 Config 後才渲染 React
 async function initApp() {
@@ -20,12 +21,13 @@ async function initApp() {
   }
   // 取得 config 後才 Render React App
   createRoot(document.getElementById("root")!).render(
-      <StrictMode>
-        <AuthProvider> {/* 🆕 用 AuthProvider 包裹 */}
+    <StrictMode>
+      <BrowserRouter>
+        <AuthProvider>
           <App />
         </AuthProvider>
-      </StrictMode>
-      
+      </BrowserRouter>
+    </StrictMode>,
   );
 }
 
