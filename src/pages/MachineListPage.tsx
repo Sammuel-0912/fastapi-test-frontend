@@ -6,7 +6,7 @@ import { getErrorMessage } from "../utils/errorMessage";
 import { Link } from "react-router-dom"; // 🆕 匯入 Link
 
 export default function MachineListPage() {
-  const { machines,  setMachines, loading, error, refetch } = useMachines();
+  const { machines, loading, error, refetch } = useMachines();
   
   const { isAuthenticated, logout } = useAuth();
 
@@ -18,9 +18,12 @@ export default function MachineListPage() {
         location: "Line C",
       };
       const res = await api.post<MachineResponse>("/machines", newMachine);
-      setMachines(prev => [res.data, ...prev]);
+      // setMachines(prev => [res.data, ...prev]);
       alert(`🎉 新增成功！機台名稱：${res.data.name}`);
-      refetch();
+
+      // 🟢 只保留 refetch 向後端同步最新資料
+      const controller = new AbortController();
+      refetch(controller.signal);
     } catch (err) {
       alert(`❌ 請求失敗 (${getErrorMessage(err, "新增機台失敗")})`);
     }

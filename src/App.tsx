@@ -1,8 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import MachineListPage from "./pages/MachineListPage";
-// import ProtectedRoute from "./components/ProtectedRoute";
-
 
 export default function App() {
   

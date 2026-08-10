@@ -44,7 +44,6 @@ export function useMachines() {
   // 💡 回傳物件：具名可讀、順序無關、擴充性極佳
   return {
     machines,
-    setMachines,
     loading,
     error,
     refetch: fetchMachines,
