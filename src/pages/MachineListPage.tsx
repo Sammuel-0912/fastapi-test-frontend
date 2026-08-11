@@ -87,7 +87,14 @@ export default function MachineListPage() {
         <ul>
           {machines.map((m) => (
             <li key={m.id} style={{ marginBottom: "8px" }}>
-              <strong>{m.name}</strong> — {m.status} @ 📍 {m.location}
+              {/* 🟢 為機台名稱加上導向 /machines/:id 的超連結 */}
+              <Link
+              to={`/machines/${m.id}`}
+              style={{ fontWeight: "bold", color: "#2b6cb0", textDecoration: "none" }}
+              >
+              {m.name}
+              </Link>{" "}
+              {m.status} @ 📍 {m.location}
             </li>
           ))}
         </ul>
