@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import LoginForm from "../components/LoginForm";
 import { useAuth } from "../contexts/AuthContext";
 import { useEffect } from "react";
+import { Link } from "react-router-dom"; // 🆕 匯入 Link
 
 export default function LoginPage() {
   const { isAuthenticated } = useAuth();
@@ -19,9 +20,25 @@ export default function LoginPage() {
   },[isAuthenticated, navigate, from]);
 
   return (
-    <div style={{ padding: "40px 20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div
+    style={{
+        padding: "40px 20px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <h1>🔐 工廠管理系統</h1>
+
+      {/* 1. 登入表單 */}
       <LoginForm />
+
+      {/* 2. 引導前往註冊的連結 (放在表單正下方) */}
+      <div style={{ marginTop: "16px" }}>
+        <Link to="/register" style={{ color: "#3182ce", fontSize: "14px" }}>
+          還沒有帳號？前往註冊 📝
+        </Link>
+      </div>
     </div>
   );
 }

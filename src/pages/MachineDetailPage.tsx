@@ -13,7 +13,7 @@ export default function MachineDetailPage() {
 
   // 2. 誠實地宣告初始值為 null
   const [machine, setMachine] = useState<MachineResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,8 +28,8 @@ export default function MachineDetailPage() {
     .then((res) => {
       setMachine(res.data);
     })
-    .catch ((error) => {
-      const msg = getErrorMessage(error, "無法載入機台資料");
+    .catch ((err) => {
+      const msg = getErrorMessage(err, "無法載入機台資料");
       if (msg) setError(msg);
     })
     .finally(() => {
