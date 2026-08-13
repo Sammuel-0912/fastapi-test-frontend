@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { MachineResponse } from "../types";
 import { getErrorMessage } from "../utils/errorMessage";
 import api from "../api";
+import { useQuery } from "@tanstack/react-query";
 
 
 
@@ -11,47 +12,32 @@ export default function MachineDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  // 2. 誠實地宣告初始值為 null
-  const [machine, setMachine] = useState<MachineResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  // 🟢 使用 useQuery 取代原本手寫的 useState + useEffect
+  const {
+    data: machine,
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["machine", id], // 🎯 key 包含 id，id 變了就自動重抓
+    queryFn: async ({ signal }) => {
+      const res = await api.get<MachineResponse>(`/machines/${id}`, { signal });
+      return res.data;
+    }
+  });
 
-  useEffect(() => {
-    // 當沒有 id 時不發送請求
-    if (!id) return;
+  // isPending 代表首次載入且尚無快取資料
+  if (isPending) return <div style={{ padding: "20px" }}>⏳ 載入機台詳情中...</div>;
 
-    const controller = new AbortController();
-    setLoading(true);
-
-    api
-    .get<MachineResponse>(`/machines/${id}`, {signal: controller.signal})
-    .then((res) => {
-      setMachine(res.data);
-    })
-    .catch ((err) => {
-      const msg = getErrorMessage(err, "無法載入機台資料");
-      if (msg) setError(msg);
-    })
-    .finally(() => {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
-    });
-    return () => {
-      controller.abort();
-    };
-  }, [id]); // 🎯 [id] 是關鍵！當 URL 的 id 改變時，重新觸發 fetch
-
-  if (loading) return <div style={{ padding: "20px" }}>⏳ 載入機台詳情中...</div>;
-  if (error) 
+  if (error) {
     return (
       <div style={{ padding: "20px" }}>
         <button onClick={() => navigate("/machines")} style={{ marginBottom: "12px", cursor: "pointer" }}>
           ← 返回列表
         </button>
-        <div style={{ color: "red" }}>⚠️ {error}</div>
+        <div style={{ color: "red" }}>⚠️ {getErrorMessage(error, "無法載入機台資料")}</div>
       </div>
     );
+  }
   if (!machine) return null;
 
   return (

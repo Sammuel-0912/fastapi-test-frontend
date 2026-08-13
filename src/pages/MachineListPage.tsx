@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../api";
 import { useAuth } from "../contexts/AuthContext";
 import { useMachines } from "../hooks/useMachines";
@@ -6,28 +7,38 @@ import { getErrorMessage } from "../utils/errorMessage";
 import { Link } from "react-router-dom"; // 🆕 匯入 Link
 
 export default function MachineListPage() {
-  const { machines, loading, error, refetch } = useMachines();
+
+  // 🟢 1. 從 useMachines 解構出 data, isPending, isFetching, error
+  const {data: machines, isPending, isFetching, error} = useMachines();
   
+
   const { isAuthenticated, logout } = useAuth();
 
-  const handleCreateMachine = async () => {
-    try {
+  const queryClient = useQueryClient();
+
+  // 🟢 2. 使用 useMutation 管理新增操作
+  const createMachineMutation = useMutation({
+    mutationFn: async () => {
       const newMachine = {
         name: `測試機台-${Math.floor(Math.random() * 1000)}`,
         status: "operational",
         location: "Line C",
       };
       const res = await api.post<MachineResponse>("/machines", newMachine);
-      // setMachines(prev => [res.data, ...prev]);
-      alert(`🎉 新增成功！機台名稱：${res.data.name}`);
-
-      // 🟢 只保留 refetch 向後端同步最新資料
-      const controller = new AbortController();
-      refetch(controller.signal);
-    } catch (err) {
+      return res.data;
+    },
+    onSuccess: (data) => {
+      alert(`🎉 新增成功！機台名稱：${data.name}`);
+      // 🎯 關鍵：宣告 ["machines"] 快取失效，TanStack Query 會自動替背景正在使用該 key 的頁面更新！
+      // 這裡完全不需要手動建立孤兒 AbortController 了！
+      queryClient.invalidateQueries({ queryKey: ["machines"] });
+    },
+    onError: (err) => {
       alert(`❌ 請求失敗 (${getErrorMessage(err, "新增機台失敗")})`);
-    }
-  };
+    },
+  })
+
+  
 
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
@@ -62,25 +73,28 @@ export default function MachineListPage() {
         {/* 🟢 只在已登入時顯示新增機台按鈕 */}
         {isAuthenticated && (
           <button
-            onClick={handleCreateMachine}
+            onClick={() => createMachineMutation.mutate()}
+            disabled={createMachineMutation.isPending}
             style={{
               padding: "10px 16px",
-              backgroundColor: "#28a745",
+              backgroundColor: createMachineMutation.isPending ? "#a0aec0" : "#28a745",
               color: "white",
               border: "none",
               borderRadius: "4px",
-              cursor: "pointer",
+              cursor: createMachineMutation.isPending ? "not-allowed" : "pointer",
             }}
           >
             ➕ 新增機台 (POST /machines)
           </button>
         )}
       </div>
+      
+      {/* ⚡️ 只有在第一次連資料都沒有 (isPending) 時才全螢幕顯示載入中 */}
 
-      {loading ? (
+      {isPending ? (
         <div>⏳ 載入中...</div>
       ) : error ? (
-        <div style={{ color: "red" }}>⚠️ {error}</div>
+        <div style={{ color: "red" }}>⚠️ {getErrorMessage(error, "載入失敗")}</div>
       ) : machines.length === 0 ? (
         <p>📭 目前尚無機台資料</p>
       ) : (
