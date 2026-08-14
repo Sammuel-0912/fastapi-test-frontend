@@ -55,7 +55,7 @@ export default function MachineListPage() {
         >
         <div>
         <span> {isAuthenticated ? "✅ 已登入管理員系統" : "👤 訪客模式 (僅供檢視)"}</span>
-        {isFetching && isPending && (
+        {isFetching && !isPending && (
           <span style={{ marginLeft: "12px", color: "#3182ce", fontSize: "13px" }}>
               🔄 資料更新中...
           </span>
