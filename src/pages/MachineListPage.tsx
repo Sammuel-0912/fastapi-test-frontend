@@ -9,7 +9,7 @@ import { Link } from "react-router-dom"; // 🆕 匯入 Link
 export default function MachineListPage() {
 
   // 🟢 1. 從 useMachines 解構出 data, isPending, isFetching, error
-  const {data: machines, isPending, isFetching, error} = useMachines();
+  const {data: machines, isFetching , isPending, error} = useMachines();
   
 
   const { isAuthenticated, logout } = useAuth();
@@ -44,8 +44,24 @@ export default function MachineListPage() {
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       {/* 頂部導覽列 */}
 
-      <div style={{ background: isAuthenticated ? "#e6fffa" : "#f7fafc" , padding: "12px 16px", borderRadius: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div 
+      style={{ 
+        background: isAuthenticated ? "#e6fffa" : "#f7fafc" , 
+        padding: "12px 16px", 
+        borderRadius: "8px", 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center" }}
+        >
+        <div>
         <span> {isAuthenticated ? "✅ 已登入管理員系統" : "👤 訪客模式 (僅供檢視)"}</span>
+        {isFetching && isPending && (
+          <span style={{ marginLeft: "12px", color: "#3182ce", fontSize: "13px" }}>
+              🔄 資料更新中...
+          </span>
+        )}
+        </div>
+        
         {isAuthenticated ? (
           <button onClick={logout} style={{ padding: "6px 12px", cursor: "pointer" }}>
           登出
@@ -98,7 +114,7 @@ export default function MachineListPage() {
       ) : machines.length === 0 ? (
         <p>📭 目前尚無機台資料</p>
       ) : (
-        <ul>
+        <ul style={{ opacity: isFetching ? 0.7 : 1, transition: "opacity 0.2s" }}>
           {machines.map((m) => (
             <li key={m.id} style={{ marginBottom: "8px" }}>
               {/* 🟢 為機台名稱加上導向 /machines/:id 的超連結 */}
