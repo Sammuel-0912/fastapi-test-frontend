@@ -8,11 +8,16 @@ import { Link } from "react-router-dom"; // 🆕 匯入 Link
 import { useState } from "react";
 
 export default function MachineListPage() {
-// 1. 新增頁碼 state，預設第 1 頁
-const [page, setPage] = useState(1);
+  // 1. 新增頁碼 state，預設第 1 頁
+  const [page, setPage] = useState(1);
   // 2. 將 page 傳入 hook，同時拿到 isPlaceholderData (代表是否為上一頁殘影)
-  const {data: machines, isFetching , isPlaceholderData, isPending, error} = useMachines(page);
-  
+  // 🟢 1. 解構出 machines 與 hasNextPage
+
+  const { data, isFetching, isPlaceholderData, isPending, error } =
+    useMachines(page);
+
+  const machines = data?.machines ?? [];
+  const hasNextPage = data?.hasNextPage ?? false;
 
   const { isAuthenticated, logout } = useAuth();
 
@@ -38,52 +43,110 @@ const [page, setPage] = useState(1);
     onError: (err) => {
       alert(`❌ 請求失敗 (${getErrorMessage(err, "新增機台失敗")})`);
     },
-  })
+  });
+  // 🟢 2. 抽離列表渲染邏輯，空狀態文案分兩種情境
+  const renderContent = () => {
+    if (isPending) {
+      return <div>⏳ 載入中...</div>;
+    }
+    if (error) {
+      return (
+        <div style={{ color: "red" }}>
+          ⚠️ {getErrorMessage(error, "載入失敗")}
+        </div>
+      );
+    }
+    if (machines.length === 0) {
+      if (page === 1) {
+        return <p>📭 目前尚無機台資料</p>;
+      }
+      return (
+        <p style={{ color: "#718096" }}>
+          ⚠️ 這一頁沒有資料了，請點擊下方返回上一頁
+        </p>
+      );
+    }
+    return (
+      <ul style={{ opacity: isFetching ? 0.7 : 1, transition: "opacity 0.2s" }}>
+        {machines.map((m) => (
+          <li key={m.id} style={{ marginBottom: "8px" }}>
+            <Link
+              to={`/machines/${m.id}`}
+              style={{
+                fontWeight: "bold",
+                color: "#2b6cb0",
+                textDecoration: "none",
+              }}
+            >
+              {m.name}
+            </Link>{" "}
+            — {m.status} @ 📍 {m.location}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  const isNextDisabled = isPlaceholderData || !hasNextPage;
+
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       {/* 頂部導覽列 */}
-
-      <div 
-      style={{ 
-        background: isAuthenticated ? "#e6fffa" : "#f7fafc" , 
-        padding: "12px 16px", 
-        borderRadius: "8px", 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center" }}
-        >
+      <div
+        style={{
+          background: isAuthenticated ? "#e6fffa" : "#f7fafc",
+          padding: "12px 16px",
+          borderRadius: "8px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          border: "1px solid #e2e8f0",
+        }}
+      >
         <div>
-        <span> {isAuthenticated ? "✅ 已登入管理員系統" : "👤 訪客模式 (僅供檢視)"}</span>
-        {isFetching && !isPending && (
-          <span style={{ marginLeft: "12px", color: "#3182ce", fontSize: "13px" }}>
-              🔄 資料更新中...
+          <span>
+            {" "}
+            {isAuthenticated ? "✅ 已登入管理員系統" : "👤 訪客模式 (僅供檢視)"}
           </span>
-        )}
+          {isFetching && !isPending && (
+            <span
+              style={{ marginLeft: "12px", color: "#3182ce", fontSize: "13px" }}
+            >
+              🔄 資料更新中...
+            </span>
+          )}
         </div>
-        
         {isAuthenticated ? (
-          <button onClick={logout} style={{ padding: "6px 12px", cursor: "pointer" }}>
-          登出
-        </button>
+          <button
+            onClick={logout}
+            style={{ padding: "6px 12px", cursor: "pointer" }}
+          >
+            登出
+          </button>
         ) : (
-          <Link to="/login"
-          style={{
-            padding: "6px 12px",
-            backgroundColor: "#3182ce",
-            color: "white",
-            borderRadius: "4px",
-            textDecoration: "none",
-          }}
+          <Link
+            to="/login"
+            style={{
+              padding: "6px 12px",
+              backgroundColor: "#3182ce",
+              color: "white",
+              borderRadius: "4px",
+              textDecoration: "none",
+            }}
           >
             前往登入🔑
           </Link>
-        )
-      }
+        )}
       </div>
-
       <hr style={{ margin: "20px 0" }} />
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <h1>🏭 工廠機台管理系統</h1>
         {/* 🟢 只在已登入時顯示新增機台按鈕 */}
         {isAuthenticated && (
@@ -92,52 +155,37 @@ const [page, setPage] = useState(1);
             disabled={createMachineMutation.isPending}
             style={{
               padding: "10px 16px",
-              backgroundColor: createMachineMutation.isPending ? "#a0aec0" : "#28a745",
+              backgroundColor: createMachineMutation.isPending
+                ? "#a0aec0"
+                : "#28a745",
               color: "white",
               border: "none",
               borderRadius: "4px",
-              cursor: createMachineMutation.isPending ? "not-allowed" : "pointer",
+              cursor: createMachineMutation.isPending
+                ? "not-allowed"
+                : "pointer",
             }}
           >
             ➕ 新增機台 (POST /machines)
           </button>
         )}
       </div>
-      
-      {/* ⚡️ 只有在第一次連資料都沒有 (isPending) 時才全螢幕顯示載入中 */}
 
-      {isPending ? (
-        <div>⏳ 載入中...</div>
-      ) : error ? (
-        <div style={{ color: "red" }}>⚠️ {getErrorMessage(error, "載入失敗")}</div>
-      ) : machines.length === 0 ? (
-        <p>📭 目前尚無機台資料</p>
-      ) : (
-        <>
-        <ul style={{ opacity: isFetching ? 0.7 : 1, transition: "opacity 0.2s" }}>
-          {machines.map((m) => (
-            <li key={m.id} style={{ marginBottom: "8px" }}>
-              {/* 🟢 為機台名稱加上導向 /machines/:id 的超連結 */}
-              <Link
-              to={`/machines/${m.id}`}
-              style={{ fontWeight: "bold", color: "#2b6cb0", textDecoration: "none" }}
-              >
-              {m.name}
-              </Link>{" "}
-              {m.status} @ 📍 {m.location}
-            </li>
-          ))}
-        </ul>
-        {/* 🟢 3. 換頁控制列 */}
+      {/* 列表內容區塊 */}
+      {renderContent()}
 
-        <div style={{ 
-          display: "flex", 
-          alignItems: "center", 
-          gap: "12px", 
+      {/* 🟢 3. 換頁控制列 */}
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
           marginTop: "20px",
           justifyContent: "center",
-          }}>
-          <button
+        }}
+      >
+        <button
           onClick={() => setPage((p) => Math.max(p - 1, 1))}
           disabled={page === 1}
           style={{
@@ -147,26 +195,24 @@ const [page, setPage] = useState(1);
             border: "none",
             borderRadius: "4px",
           }}
-          >
-            上一頁
-          </button>
-          <span>目前頁數: 第 {page} 頁</span>
-          <button
+        >
+          上一頁
+        </button>
+        <span>目前頁數: 第 {page} 頁</span>
+        <button
           onClick={() => setPage((p) => p + 1)}
-          disabled={isPlaceholderData || machines?.length < 10}
+          disabled={isNextDisabled}
           style={{
             padding: "6px 12px",
-            backgroundColor: isPlaceholderData || machines.length < 10 ? "#e2e8f0" : "#cbd5e0",
-            cursor: isPlaceholderData || machines.length < 10 ? "not-allowed" : "pointer",
+            backgroundColor: isNextDisabled ? "#e2e8f0" : "#cbd5e0",
+            cursor: isNextDisabled ? "not-allowed" : "pointer",
             border: "none",
             borderRadius: "4px",
           }}
-          >
-            下一頁
-          </button>
-        </div>
-        </>
-      )}
+        >
+          下一頁
+        </button>
+      </div>
     </div>
   );
 }
