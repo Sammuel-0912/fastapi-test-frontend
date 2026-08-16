@@ -5,11 +5,13 @@ import { useMachines } from "../hooks/useMachines";
 import type { MachineResponse } from "../types";
 import { getErrorMessage } from "../utils/errorMessage";
 import { Link } from "react-router-dom"; // 🆕 匯入 Link
+import { useState } from "react";
 
 export default function MachineListPage() {
-
-  // 🟢 1. 從 useMachines 解構出 data, isPending, isFetching, error
-  const {data: machines, isFetching , isPending, error} = useMachines();
+// 1. 新增頁碼 state，預設第 1 頁
+const [page, setPage] = useState(1);
+  // 2. 將 page 傳入 hook，同時拿到 isPlaceholderData (代表是否為上一頁殘影)
+  const {data: machines, isFetching , isPlaceholderData, isPending, error} = useMachines(page);
   
 
   const { isAuthenticated, logout } = useAuth();
@@ -37,9 +39,6 @@ export default function MachineListPage() {
       alert(`❌ 請求失敗 (${getErrorMessage(err, "新增機台失敗")})`);
     },
   })
-
-  
-
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       {/* 頂部導覽列 */}
@@ -114,6 +113,7 @@ export default function MachineListPage() {
       ) : machines.length === 0 ? (
         <p>📭 目前尚無機台資料</p>
       ) : (
+        <>
         <ul style={{ opacity: isFetching ? 0.7 : 1, transition: "opacity 0.2s" }}>
           {machines.map((m) => (
             <li key={m.id} style={{ marginBottom: "8px" }}>
@@ -128,6 +128,44 @@ export default function MachineListPage() {
             </li>
           ))}
         </ul>
+        {/* 🟢 3. 換頁控制列 */}
+
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "12px", 
+          marginTop: "20px",
+          justifyContent: "center",
+          }}>
+          <button
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          disabled={page === 1}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: page === 1 ? "#e2e8f0" : "#cbd5e0",
+            cursor: page === 1 ? "not-allowed" : "pointer",
+            border: "none",
+            borderRadius: "4px",
+          }}
+          >
+            上一頁
+          </button>
+          <span>目前頁數: 第 {page} 頁</span>
+          <button
+          onClick={() => setPage((p) => p + 1)}
+          disabled={isPlaceholderData || machines?.length < 10}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: isPlaceholderData || machines.length < 10 ? "#e2e8f0" : "#cbd5e0",
+            cursor: isPlaceholderData || machines.length < 10 ? "not-allowed" : "pointer",
+            border: "none",
+            borderRadius: "4px",
+          }}
+          >
+            下一頁
+          </button>
+        </div>
+        </>
       )}
     </div>
   );
