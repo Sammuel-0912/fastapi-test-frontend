@@ -197,7 +197,7 @@ export default function MachineListPage() {
       >
         <h1>🏭 工廠機台管理系統</h1>
         {/* 新增按鈕：只有管理員或登入者能操作 */}
-        {isAdmin && (
+        {isAuthenticated && (
           <button
           onClick={() => createMachineMutation.mutate()}
           disabled={createMachineMutation.isPending}

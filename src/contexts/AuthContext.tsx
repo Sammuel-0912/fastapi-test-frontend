@@ -26,6 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (newToken: string) => {
     setTokenState(newToken);
     setModuleToken(newToken); // 👈 關鍵：同步給 Interceptor 使用
+    setIsUserLoading(true); // 🟢 1. 發送請求前設為 true，啟動載入狀態
 
     try {
       const res = await api.get<UserResponse>("/auth/me");
@@ -33,6 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error("無法取得使用者資訊:", err);
       logout();
+      throw err; // 🟢 2. 核心：將錯誤往外拋，讓 LoginForm 的 catch 能夠接住並 set 錯誤訊息
+    } finally {
+      setIsUserLoading(false);
     }
   };
 
