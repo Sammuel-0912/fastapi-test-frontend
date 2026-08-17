@@ -58,7 +58,7 @@ export default function LoginForm() {
       // const res = await api.post<Token>("/auth/login", { username, password });
 
       // 🎉 呼叫 AuthContext 的 login
-      login(res.data.access_token);
+      await login(res.data.access_token);
 
       // 🧹 2. 清空密碼欄位與錯誤訊息
       setPassword("");

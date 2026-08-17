@@ -6,8 +6,9 @@ import api from "../api";
 interface AuthContextType {
   token: string | null;
   user: UserResponse | null;
-  login: (newToken: string) => void;
+  login: (newToken: string) => Promise<void>;
   isAdmin : boolean;
+  isUserLoading: boolean;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -18,6 +19,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 🟢 1. 記錄使用者資訊
   const [user, setUser] = useState<UserResponse | null>(null);
+
+  const [isUserLoading, setIsUserLoading] = useState<boolean>(false);
 
   // 🟢 2. 登入函式改為 async：存 token 並打 /auth/me
   const login = async (newToken: string) => {
@@ -38,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTokenState(null);
     setModuleToken(null); // 👈 關鍵：清空 Interceptor 的 Token
     setUser(null);
+    setIsUserLoading(false); // 🟢 1. 登出時重置為 false
   };
 
   useEffect(() => {
@@ -56,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token,
         user,
         isAdmin: user?.role === "admin", // 🟢 3. 方便的 boolean 判斷
+        isUserLoading,
         login,
         logout,
         isAuthenticated: !!token,

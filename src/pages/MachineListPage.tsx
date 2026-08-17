@@ -21,7 +21,7 @@ export default function MachineListPage() {
 
   // 🟢 1. 取得 isAdmin 與 user 資訊
 
-  const { isAuthenticated, isAdmin, user,  logout } = useAuth();
+  const { isAuthenticated, isAdmin, user, isUserLoading, logout } = useAuth();
 
   const queryClient = useQueryClient();
 
@@ -135,6 +135,11 @@ export default function MachineListPage() {
 
   const isNextDisabled = isPlaceholderData || !hasNextPage;
 
+  const renderAuthStatus = () => {
+    if (!isAuthenticated) return "👤 訪客模式 (僅供檢視)";
+    if (isUserLoading) return "⏳ 載入使用者資訊中...";
+    return `✅ 已登入：${user?.username ?? ""} (${isAdmin ? "系統管理員" : "一般使用者"})`;
+  }
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       {/* 頂部導覽列 */}
@@ -150,12 +155,7 @@ export default function MachineListPage() {
         }}
       >
         <div>
-          <span>
-            {" "}
-            {isAuthenticated 
-            ? `✅ 已登入：${user?.username ?? ""} (${isAdmin ? "系統管理員" : "一般使用者"})`
-            : "👤 訪客模式 (僅供檢視)"}
-            </span>
+          <span>{renderAuthStatus()}</span>
           {isFetching && !isPending && (
             <span
               style={{ marginLeft: "12px", color: "#3182ce", fontSize: "13px" }}
