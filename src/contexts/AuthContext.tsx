@@ -24,13 +24,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 🟢 2. 登入函式改為 async：存 token 並打 /auth/me
   const login = async (newToken: string) => {
-    setTokenState(newToken);
+    // setTokenState(newToken);
     setModuleToken(newToken); // 👈 關鍵：同步給 Interceptor 使用
     setIsUserLoading(true); // 🟢 1. 發送請求前設為 true，啟動載入狀態
 
     try {
+      // 🟢 2. 驗證身分並取得 user 資料
       const res = await api.get<UserResponse>("/auth/me");
       setUser(res.data);
+      // 🟢 3. 關鍵修正：身分驗證完全成功後，才更新 React Token State！
+      setTokenState(newToken);
     } catch (err) {
       console.error("無法取得使用者資訊:", err);
       logout();

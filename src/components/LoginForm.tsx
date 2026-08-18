@@ -59,10 +59,14 @@ export default function LoginForm() {
 
       // 🎉 呼叫 AuthContext 的 login
       await login(res.data.access_token);
-
       // 🧹 2. 清空密碼欄位與錯誤訊息
       setPassword("");
     } catch (err) {
+      // 🟢 若為 404 或無效路由，轉成易懂的中文提示
+      const status = err?.response?.status;
+      if (status === 404 || status === 401) {
+        setError("登入失敗，請檢查帳號密碼。");
+      }
       setError(getErrorMessage(err, "登入失敗，請檢查帳號密碼"));
     } finally {
       setSubmitting(false);
