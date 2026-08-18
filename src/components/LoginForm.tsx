@@ -3,6 +3,7 @@ import api from "../api";
 import type { Token } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { getErrorMessage } from "../utils/errorMessage";
+import axios from "axios"; // 🟢 匯入 axios 用於型別檢查
 
 // 1. 純函式驗證：只驗證是否填寫，絕不驗證長度！
 const validateLoginForm = (username: string, password: string) => {
@@ -61,13 +62,17 @@ export default function LoginForm() {
       await login(res.data.access_token);
       // 🧹 2. 清空密碼欄位與錯誤訊息
       setPassword("");
-    } catch (err) {
-      // 🟢 若為 404 或無效路由，轉成易懂的中文提示
-      const status = err?.response?.status;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const status = err?.response?.status;
       if (status === 404 || status === 401) {
         setError("登入失敗，請檢查帳號密碼。");
+      } else {
+        setError(getErrorMessage(err, "登入失敗，請檢查帳號密碼。"));
       }
-      setError(getErrorMessage(err, "登入失敗，請檢查帳號密碼"));
+    } else {
+      setError(getErrorMessage(err, "登入失敗，請檢查帳號密碼。"));
+      }
     } finally {
       setSubmitting(false);
     }
