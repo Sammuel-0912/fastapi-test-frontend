@@ -8,6 +8,7 @@ import { Link } from "react-router-dom"; // 🆕 匯入 Link
 import { useState } from "react";
 
 export default function MachineListPage() {
+  
   // 1. 新增頁碼 state，預設第 1 頁
   const [page, setPage] = useState(1);
   // 2. 將 page 傳入 hook，同時拿到 isPlaceholderData (代表是否為上一頁殘影)
@@ -18,6 +19,8 @@ export default function MachineListPage() {
 
   const machines = data?.machines ?? [];
   const hasNextPage = data?.hasNextPage ?? false;
+
+  const processTimeMs = data?.processTimeMs ?? 0;
 
   // 🟢 1. 取得 isAdmin 與 user 資訊
 
@@ -188,6 +191,7 @@ export default function MachineListPage() {
       </div>
       <hr style={{ margin: "20px 0" }} />
 
+      
       <div
         style={{
           display: "flex",
@@ -196,6 +200,23 @@ export default function MachineListPage() {
         }}
       >
         <h1>🏭 工廠機台管理系統</h1>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+        {/* 🟢 顯示後端查詢耗時，超過 100ms 顯示警告色 */}
+        {processTimeMs > 0 && (
+        <span
+        style={{
+          fontSize: "12px",
+          padding: "4px 8px",
+          borderRadius: "4px",
+          backgroundColor: processTimeMs > 100 ? "#feebc8" : "#edf2f7",
+          color: processTimeMs > 100 ? "#c05621" : "#4a5568",
+          fontFamily: "monospace",
+        }}
+      >
+        ⏱ 後端耗時：{processTimeMs}ms
+      </span>
+        )}
+        </div>
         {isAuthenticated && (
           <button
           onClick={() => createMachineMutation.mutate()}

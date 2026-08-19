@@ -19,9 +19,14 @@ export function useMachines(page: number) {
       const rawData = res.data ?? [];
       const hasNextPage = rawData.length > PAGE_SIZE;
       const machines = rawData.slice(0, PAGE_SIZE); // 畫面只渲染前 10 筆
+
+      // 🟢 讀取 Header 的耗時並轉為毫秒數字 (若無則 fallback 0)
+      const rawProcessTime = res.headers["x-process-time"];
+      const processTimeMs = rawProcessTime ? +(+rawProcessTime * 1000).toFixed(1) : 0;
       return {
         machines,
         hasNextPage,
+        processTimeMs,
       };
     },
     placeholderData: keepPreviousData, // 👈 換頁時保留舊資料，避免畫面閃空白
