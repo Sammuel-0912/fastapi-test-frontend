@@ -22,7 +22,7 @@ export function useMachines(page: number) {
 
       // 🟢 讀取 Header 的耗時並轉為毫秒數字 (若無則 fallback 0)
       const rawProcessTime = res.headers["x-process-time"];
-      const processTimeMs = rawProcessTime ? +(+rawProcessTime * 1000).toFixed(1) : 0;
+      const processTimeMs = rawProcessTime != null ? +(+rawProcessTime * 1000).toFixed(1): null;
       return {
         machines,
         hasNextPage,
