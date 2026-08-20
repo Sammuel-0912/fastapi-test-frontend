@@ -202,7 +202,7 @@ export default function MachineListPage() {
         <h1>🏭 工廠機台管理系統</h1>
         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
         {/* 🟢 顯示後端查詢耗時，超過 100ms 顯示警告色 */}
-        {processTimeMs > 0 && (
+        {processTimeMs != null && (
         <span
         style={{
           fontSize: "12px",
