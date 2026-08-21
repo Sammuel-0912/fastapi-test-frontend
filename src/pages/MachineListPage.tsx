@@ -20,7 +20,7 @@ export default function MachineListPage() {
   const machines = data?.machines ?? [];
   const hasNextPage = data?.hasNextPage ?? false;
 
-  const processTimeMs = data?.processTimeMs ?? 0;
+  const processTimeMs = data?.processTimeMs ?? null;
 
   // 🟢 1. 取得 isAdmin 與 user 資訊
 
