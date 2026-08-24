@@ -1,4 +1,19 @@
 services:
+  backend:
+    build: ../fastapi-test
+    env_file:
+      - ../fastapi-test/.env
+    ports:
+      - "8000:8000"
+    # 🟢 SQLite 資料持久化：把 /code/data 掛到 named volume，重建容器資料不消失
+    volumes:
+      - backend-db:/code/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   frontend:
     build: .
     ports:
@@ -6,6 +21,11 @@ services:
     environment:
       # 🟢 改用相對路徑，讓前端打到 nginx 的 /api 反向代理（同源，無 CORS）
       - API_BASE_URL=/api
-    # 🟢 讓容器內能以 host.docker.internal 連到主機上的後端 (8000)
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    # 🟢 等後端健康檢查通過才啟動，確保 nginx 代理目標可用
+    depends_on:
+      backend:
+        condition: service_healthy
+
+# 🟢 具名 volume：儲存後端 SQLite 資料庫檔
+volumes:
+  backend-db:
