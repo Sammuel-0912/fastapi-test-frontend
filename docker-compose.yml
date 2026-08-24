@@ -1,0 +1,11 @@
+services:
+  frontend:
+    build: .
+    ports:
+      - "5173:80"
+    environment:
+      # 🟢 改用相對路徑，讓前端打到 nginx 的 /api 反向代理（同源，無 CORS）
+      - API_BASE_URL=/api
+    # 🟢 讓容器內能以 host.docker.internal 連到主機上的後端 (8000)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
