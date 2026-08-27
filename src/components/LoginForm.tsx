@@ -3,15 +3,8 @@ import api from "../api";
 import type { Token } from "../types";
 import { useAuth } from "../contexts/AuthContext";
 import { getErrorMessage } from "../utils/errorMessage";
+import { validateLoginForm } from "../utils/validateLoginForm";
 import axios from "axios"; // 🟢 匯入 axios 用於型別檢查
-
-// 1. 純函式驗證：只驗證是否填寫，絕不驗證長度！
-const validateLoginForm = (username: string, password: string) => {
-  return {
-    username: !username.trim() ? "請輸入帳號" : "",
-    password: !password ? "請輸入密碼" : "",
-  };
-};
 
 
 export default function LoginForm() {

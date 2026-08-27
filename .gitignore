@@ -11,6 +11,12 @@ node_modules
 dist
 dist-ssr
 *.local
+dist
+.env
+.env.*
+__pycache__/
+*.py[cod]
+*$py.class
 
 # Editor directories and files
 .vscode/*
@@ -24,3 +30,8 @@ dist-ssr
 *.sw?
 
 .env
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
