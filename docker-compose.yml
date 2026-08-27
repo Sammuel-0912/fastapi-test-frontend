@@ -1,13 +1,17 @@
 services:
   backend:
-    build: ../fastapi-test
+    build:
+      context: ../fastapi-test
     env_file:
       - ../fastapi-test/.env
-    ports:
-      - "8000:8000"
+    environment:
+      # 🟢 四條斜線表示絕對路徑：/code/data/factory.db
+      - DATABASE_URL=sqlite+aiosqlite:////code/data/factory.db
     # 🟢 SQLite 資料持久化：把 /code/data 掛到 named volume，重建容器資料不消失
     volumes:
       - backend-db:/code/data
+    ports:
+      - "8000:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
       interval: 10s
