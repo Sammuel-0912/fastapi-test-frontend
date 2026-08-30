@@ -21,7 +21,7 @@ jobs:
           cache: "npm"
       
       - name: 📦 安裝相依套件 (Clean Install)
-        run: npm install
+        run: npm ci
       
       - name: 🏗️ 建置專案與型別檢查 (Build & Typecheck)
         run: npm run build
