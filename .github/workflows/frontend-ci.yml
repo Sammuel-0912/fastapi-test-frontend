@@ -1,0 +1,27 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 檢出程式碼 (Checkout)
+        uses: actions/checkout@v4
+      
+      - name: ⚙️ 設定 Node.js 環境
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      
+      - name: 📦 安裝相依套件 (Clean Install)
+        run: npm ci
+      
+      - name: 🏗️ 建置專案與型別檢查 (Build & Typecheck)
+        run: npm run build
