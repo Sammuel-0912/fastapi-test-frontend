@@ -31,7 +31,7 @@ jobs:
         run: npm test
       # 🟢 2. 安裝 Chromium 與 Linux 系統核心依賴 (libnss3 等)
       - name: 🎭 安裝 Playwright 瀏覽器
-      - run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium
 
       # 🟢 3. 執行 E2E 測試，將 baseURL 指向 preview 的 4173 port
       - name: 🔺 E2E
