@@ -38,3 +38,14 @@ jobs:
         env:
           E2E_BASE_URL: http://localhost:4173
         run: npm run e2e
+      
+      # 🟢 新增：無論前面的步驟成功或失敗，都上傳測試報告
+      - name: 📤 上傳測試報告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
