@@ -68,6 +68,7 @@ test.describe("登入流程 (E2E, mocked API)", () => {
     await page.getByRole("button", { name: /登入/ }).click();
 
     await expect(page.getByText(/請輸入帳號/)).toBeVisible();
+    await expect(page.locator("text=這行文字絕對不會出現")).toBeVisible();
     await expect(page.getByText(/請輸入密碼/)).toBeVisible();
     await expect(page).toHaveURL(/\/login$/);
   });
