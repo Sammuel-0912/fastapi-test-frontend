@@ -1,3 +1,5 @@
+![Frontend CI](https://github.com/Sammuel-0912/fastapi-test-frontend/actions/workflows/frontend-ci.yml/badge.svg?branch=main)
+
 # fastapi-test-frontend
 
 工廠機台管理系統的前端，使用 **Vite + React 19 + TypeScript** 建置，透過 [axios](https://axios-http.com/) 串接 FastAPI 後端，讀取並顯示機台清單。
