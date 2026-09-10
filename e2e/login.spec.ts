@@ -41,7 +41,7 @@ test.describe("登入流程 (E2E, mocked API)", () => {
     await page.getByRole("button", { name: /登入/ }).click();
 
     // 登入成功後 LoginPage 會自動導向 /machines
-    await expect(page).toHaveURL(/\/machines$/);
+    await expect(page).toHaveURL(/\/wrong-page$/);
     // 登入表單應消失
     await expect(page.getByText("🔐 管理員登入")).toBeHidden();
   });
