@@ -13,33 +13,30 @@ jobs:
     steps:
       - name: 📥 檢出程式碼 (Checkout)
         uses: actions/checkout@v4
-      
+
       - name: ⚙️ 設定 Node.js 環境
         uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "npm"
-      
+
       - name: 📦 安裝相依套件 (Clean Install)
         run: npm ci
-      
+
       - name: 🏗️ 建置專案與型別檢查 (Build & Typecheck)
         run: npm run build
-      
-      # 🟢 1. 補跑 12 個 Vitest 單元測試
+
       - name: 🧪 單元測試
         run: npm test
-      # 🟢 2. 安裝 Chromium 與 Linux 系統核心依賴 (libnss3 等)
+
       - name: 🎭 安裝 Playwright 瀏覽器
         run: npx playwright install --with-deps chromium
 
-      # 🟢 3. 執行 E2E 測試，將 baseURL 指向 preview 的 4173 port
       - name: 🔺 E2E
         env:
           E2E_BASE_URL: http://localhost:4173
         run: npm run e2e
-      
-      # 🟢 新增：無論前面的步驟成功或失敗，都上傳測試報告
+
       - name: 📤 上傳測試報告
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,3 +46,28 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+
+  # 🟢 新增：測試與 Build 通過後，打包前端 Docker Image 並推送到 GHCR
+  build-image:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: 📥 檢出程式碼 (Checkout)
+        uses: actions/checkout@v4
+
+      - name: 🔑 登入 GHCR (GitHub Container Registry)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐳 建置並推送前端 Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
