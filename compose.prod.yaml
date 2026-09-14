@@ -1,0 +1,10 @@
+services:
+  backend:
+    image: ghcr.io/sammuel-0912/fastapi-test:${BACKEND_TAG}
+    build: !reset null
+    env_file:
+      - .env # 🟢 正確：讀取部署目錄同級的 .env，不再指向相對路徑 ../fastapi-test/.env
+
+  frontend:
+    image: ghcr.io/sammuel-0912/fastapi-test-frontend:${FRONTEND_TAG}
+    build: !reset null
