@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# 🟢 加入 concurrency，同一分支新的 Push 自動取消還在跑的舊 Run
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+  
 jobs:
   build:
     runs-on: ubuntu-latest
